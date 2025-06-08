@@ -1,5 +1,8 @@
 import SwiftUI
 import CoreLocation
+import FirebaseCore
+import FirebaseFirestore
+import FirebaseAuth
 
 // MARK: - Main Content View (TabView + Home)
 struct ContentView: View {

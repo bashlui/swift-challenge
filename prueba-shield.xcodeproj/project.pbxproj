@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FB4DCF192DF5BB1B007ABD4B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = FB4DCF182DF5BB1B007ABD4B /* FirebaseCore */; };
+		FB4DCF1B2DF5BB24007ABD4B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FB4DCF1A2DF5BB24007ABD4B /* FirebaseAuth */; };
+		FB4DCF1D2DF5BB29007ABD4B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FB4DCF1C2DF5BB29007ABD4B /* FirebaseFirestore */; };
+		FBB7D6602DF5A8E7002F96CB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FBB7D65F2DF5A8E7002F96CB /* GoogleService-Info.plist */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		FBB7D6232DF580F6002F96CB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +34,7 @@
 		FBB7D6102DF580F4002F96CB /* prueba-shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "prueba-shield.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBB7D6222DF580F6002F96CB /* prueba-shieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "prueba-shieldTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBB7D62C2DF580F6002F96CB /* prueba-shieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "prueba-shieldUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBB7D65F2DF5A8E7002F96CB /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +73,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB4DCF192DF5BB1B007ABD4B /* FirebaseCore in Frameworks */,
+				FB4DCF1B2DF5BB24007ABD4B /* FirebaseAuth in Frameworks */,
+				FB4DCF1D2DF5BB29007ABD4B /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +96,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FB4DCF172DF5BB1B007ABD4B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FBB7D6072DF580F4002F96CB = {
 			isa = PBXGroup;
 			children = (
@@ -92,6 +110,8 @@
 				FBB7D6252DF580F6002F96CB /* prueba-shieldTests */,
 				FBB7D62F2DF580F6002F96CB /* prueba-shieldUITests */,
 				FBB7D6112DF580F4002F96CB /* Products */,
+				FBB7D65F2DF5A8E7002F96CB /* GoogleService-Info.plist */,
+				FB4DCF172DF5BB1B007ABD4B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -125,6 +145,9 @@
 			);
 			name = "prueba-shield";
 			packageProductDependencies = (
+				FB4DCF182DF5BB1B007ABD4B /* FirebaseCore */,
+				FB4DCF1A2DF5BB24007ABD4B /* FirebaseAuth */,
+				FB4DCF1C2DF5BB29007ABD4B /* FirebaseFirestore */,
 			);
 			productName = "prueba-shield";
 			productReference = FBB7D6102DF580F4002F96CB /* prueba-shield.app */;
@@ -208,6 +231,9 @@
 			);
 			mainGroup = FBB7D6072DF580F4002F96CB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FBB7D6612DF5AA67002F96CB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FBB7D6112DF580F4002F96CB /* Products */;
 			projectDirPath = "";
@@ -225,6 +251,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBB7D6602DF5A8E7002F96CB /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,6 +608,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FBB7D6612DF5AA67002F96CB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FB4DCF182DF5BB1B007ABD4B /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBB7D6612DF5AA67002F96CB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		FB4DCF1A2DF5BB24007ABD4B /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBB7D6612DF5AA67002F96CB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		FB4DCF1C2DF5BB29007ABD4B /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBB7D6612DF5AA67002F96CB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FBB7D6082DF580F4002F96CB /* Project object */;
 }
