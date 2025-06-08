@@ -1,10 +1,3 @@
-//
-//  Managers.swift
-//  prueba-shield
-//
-//  Created by Alumno on 08/06/25.
-//
-
 import Foundation
 import CoreLocation
 import UserNotifications
@@ -50,7 +43,9 @@ class ThemeManager: ObservableObject {
 // MARK: - Weather Manager
 class WeatherManager: ObservableObject {
     @Published var currentWeather: WeatherData?
+    @Published var dailyForecast: [DailyForecast] = []
     @Published var isLoading = false
+    @Published var isLoadingForecast = false
     @Published var errorMessage: String?
     
     private let apiKey = "TU_API_KEY_AQUI"
@@ -101,6 +96,49 @@ class WeatherManager: ObservableObject {
         }.resume()
     }
     
+    func fetchForecast(for location: CLLocation) {
+        guard !apiKey.isEmpty && apiKey != "TU_API_KEY_AQUI" else {
+            loadMockForecast()
+            return
+        }
+        
+        isLoadingForecast = true
+        
+        let lat = location.coordinate.latitude
+        let lon = location.coordinate.longitude
+        let urlString = "https://api.openweathermap.org/data/2.5/forecast?lat=\(lat)&lon=\(lon)&appid=\(apiKey)&units=metric&lang=es"
+        
+        guard let url = URL(string: urlString) else {
+            self.isLoadingForecast = false
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoadingForecast = false
+                
+                if let error = error {
+                    print("Error fetching forecast: \(error.localizedDescription)")
+                    self.loadMockForecast()
+                    return
+                }
+                
+                guard let data = data else {
+                    self.loadMockForecast()
+                    return
+                }
+                
+                do {
+                    let forecastResponse = try JSONDecoder().decode(WeatherForecastResponse.self, from: data)
+                    self.dailyForecast = DailyForecast.fromForecastItems(forecastResponse.list)
+                } catch {
+                    print("Error decoding forecast: \(error.localizedDescription)")
+                    self.loadMockForecast()
+                }
+            }
+        }.resume()
+    }
+    
     private func loadMockWeather() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.currentWeather = WeatherData(
@@ -113,6 +151,71 @@ class WeatherManager: ObservableObject {
                 uvIndex: 8,
                 heatIndex: .extreme
             )
+        }
+    }
+    
+    func getWeatherMetrics() -> WeatherMetrics? {
+        guard let weather = currentWeather else { return nil }
+        
+        return WeatherMetrics(
+            temperature: weather.temperature,
+            humidity: weather.humidity,
+            uvIndex: weather.uvIndex,
+            windSpeed: weather.windSpeed,
+            heatIndex: weather.heatIndex,
+            airQuality: generateAirQuality(for: weather.temperature),
+            visibility: generateVisibility(for: weather.humidity)
+        )
+    }
+    
+    private func generateAirQuality(for temperature: Int) -> Int {
+        // Simular calidad del aire basada en temperatura
+        switch temperature {
+        case ..<25: return 1 // Excelente
+        case 25..<30: return 2 // Buena
+        case 30..<35: return 3 // Moderada
+        case 35..<40: return 4 // Mala
+        default: return 5 // Peligrosa
+        }
+    }
+    
+    private func generateVisibility(for humidity: Int) -> Int {
+        // Simular visibilidad basada en humedad
+        switch humidity {
+        case ..<30: return 20 // Excelente visibilidad
+        case 30..<60: return 15 // Buena visibilidad
+        case 60..<80: return 10 // Moderada
+        default: return 5 // Reducida
+        }
+    }
+    
+    private func loadMockForecast() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            let calendar = Calendar.current
+            let today = Date()
+            
+            self.dailyForecast = (1...5).map { dayOffset in
+                let date = calendar.date(byAdding: .day, value: dayOffset, to: today) ?? today
+                let dayFormatter = DateFormatter()
+                dayFormatter.dateFormat = "EEEE"
+                
+                let temps = [32, 35, 38, 33, 30]
+                let descriptions = ["Soleado", "Muy caluroso", "Calor extremo", "Caluroso", "Templado"]
+                let icons = ["sun.max.fill", "sun.max.fill", "sun.max.fill", "cloud.sun.fill", "cloud.fill"]
+                
+                let temp = temps[dayOffset - 1]
+                
+                return DailyForecast(
+                    date: date,
+                    dayName: dayFormatter.string(from: date),
+                    maxTemp: temp,
+                    minTemp: temp - 8,
+                    description: descriptions[dayOffset - 1],
+                    icon: icons[dayOffset - 1],
+                    precipitationProbability: [10, 5, 0, 20, 40][dayOffset - 1],
+                    heatIndex: WeatherData.calculateHeatIndex(temperature: temp)
+                )
+            }
         }
     }
 }

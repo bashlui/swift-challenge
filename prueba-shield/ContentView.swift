@@ -1,11 +1,8 @@
 import SwiftUI
-import SwiftData
 import CoreLocation
 
-// MARK: - Main Content View (TabView + Home + SwiftData)
+// MARK: - Main Content View (TabView + Home)
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
     @State private var selectedTab = 0
     @StateObject private var themeManager = ThemeManager()
     
@@ -14,16 +11,11 @@ struct ContentView: View {
             DesignSystem.lightGray.ignoresSafeArea()
             
             TabView(selection: $selectedTab) {
-                HomeView(
-                    selectedTab: $selectedTab,
-                    themeManager: themeManager,
-                    modelContext: modelContext,
-                    items: items
-                )
-                .tabItem {
-                    Label("Inicio", systemImage: "house.fill")
-                }
-                .tag(0)
+                HomeView(selectedTab: $selectedTab, themeManager: themeManager)
+                    .tabItem {
+                        Label("Inicio", systemImage: "house.fill")
+                    }
+                    .tag(0)
                 
                 MapView()
                     .tabItem {
@@ -37,18 +29,11 @@ struct ContentView: View {
                     }
                     .tag(2)
                 
-                // Nueva pestaña para gestión de datos
-                DataManagementView(modelContext: modelContext, items: items)
-                    .tabItem {
-                        Label("Datos", systemImage: "list.bullet.clipboard")
-                    }
-                    .tag(3)
-                
                 SettingsAlertsView(themeManager: themeManager)
                     .tabItem {
                         Label("Configuración", systemImage: "gear.circle.fill")
                     }
-                    .tag(4)
+                    .tag(3)
             }
             .accentColor(DesignSystem.primaryBlue)
             .preferredColorScheme(colorScheme(for: themeManager.appearanceMode))
@@ -65,17 +50,13 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Home View (Actualizada con SwiftData)
+// MARK: - Home View
 struct HomeView: View {
     @Binding var selectedTab: Int
     @ObservedObject var themeManager: ThemeManager
     @StateObject private var locationManager = LocationManager()
     @StateObject private var weatherManager = WeatherManager()
     @State private var showingSafetyTips = false
-    
-    // SwiftData properties
-    let modelContext: ModelContext
-    let items: [Item]
     
     var body: some View {
         NavigationView {
@@ -86,10 +67,6 @@ struct HomeView: View {
                     VStack(spacing: 24) {
                         headerSection
                         weatherSection
-                        
-                        // Nueva sección de estado de datos
-                        dataStatusSection
-                        
                         quickActionsSection
                         Spacer(minLength: 20)
                     }
@@ -100,6 +77,7 @@ struct HomeView: View {
             .refreshable {
                 if let location = locationManager.location {
                     weatherManager.fetchWeather(for: location)
+                    weatherManager.fetchForecast(for: location)
                 }
             }
             .sheet(isPresented: $showingSafetyTips) {
@@ -136,40 +114,16 @@ struct HomeView: View {
     }
     
     private var weatherSection: some View {
-        WeatherCard(weatherManager: weatherManager, locationManager: locationManager, themeManager: themeManager)
-            .padding(.horizontal, DesignSystem.padding)
-    }
-    
-    // Nueva sección que muestra el estado de los datos
-    private var dataStatusSection: some View {
-        CardView {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Estado del Sistema")
-                        .font(DesignSystem.headline())
-                        .foregroundColor(DesignSystem.primaryText)
-                    
-                    Text("\(items.count) registros guardados")
-                        .font(DesignSystem.caption())
-                        .foregroundColor(DesignSystem.textGray)
-                }
-                
-                Spacer()
-                
-                Button(action: addNewRecord) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(DesignSystem.primaryBlue)
-                }
-                
-                Button(action: { selectedTab = 3 }) {
-                    Image(systemName: "list.bullet.clipboard")
-                        .font(.title2)
-                        .foregroundColor(DesignSystem.secondaryBlue)
-                }
+        VStack(spacing: 16) {
+            WeatherCard(weatherManager: weatherManager, locationManager: locationManager, themeManager: themeManager)
+                .padding(.horizontal, DesignSystem.padding)
+            
+            // Nueva sección de pronóstico
+            CardView {
+                WeatherForecastCard(weatherManager: weatherManager, themeManager: themeManager)
             }
+            .padding(.horizontal, DesignSystem.padding)
         }
-        .padding(.horizontal, DesignSystem.padding)
     }
     
     private var quickActionsSection: some View {
@@ -205,9 +159,9 @@ struct HomeView: View {
                 }
                 
                 QuickActionCard(
-                    title: "Gestión Datos",
-                    subtitle: "Ver registros",
-                    icon: "list.bullet.clipboard",
+                    title: "Configuración",
+                    subtitle: "Alertas y ajustes",
+                    icon: "gear.circle.fill",
                     gradient: [DesignSystem.secondaryBlue, DesignSystem.accentBlue]
                 ) {
                     selectedTab = 3
@@ -230,152 +184,12 @@ struct HomeView: View {
         locationManager.requestPermission()
         if let location = locationManager.location {
             weatherManager.fetchWeather(for: location)
-        }
-    }
-    
-    private func addNewRecord() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+            weatherManager.fetchForecast(for: location)
         }
     }
 }
 
-// MARK: - Nueva Vista de Gestión de Datos
-struct DataManagementView: View {
-    let modelContext: ModelContext
-    let items: [Item]
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                GradientBackground()
-                
-                VStack(spacing: 20) {
-                    // Header
-                    VStack(spacing: 12) {
-                        Image(systemName: "list.bullet.clipboard.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(DesignSystem.primaryBlue)
-                        
-                        Text("Gestión de Datos")
-                            .font(DesignSystem.title2())
-                            .foregroundColor(DesignSystem.primaryText)
-                        
-                        Text("Administra los registros del sistema")
-                            .font(DesignSystem.body())
-                            .foregroundColor(DesignSystem.textGray)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 20)
-                    .padding(.horizontal, DesignSystem.padding)
-                    
-                    // Stats Card
-                    CardView {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Total de Registros")
-                                    .font(DesignSystem.headline())
-                                    .foregroundColor(DesignSystem.primaryText)
-                                
-                                Text("\(items.count)")
-                                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                                    .foregroundColor(DesignSystem.primaryBlue)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(spacing: 8) {
-                                Button(action: addItem) {
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.title)
-                                        .foregroundColor(DesignSystem.primaryBlue)
-                                }
-                                
-                                Text("Agregar")
-                                    .font(DesignSystem.caption())
-                                    .foregroundColor(DesignSystem.textGray)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, DesignSystem.padding)
-                    
-                    // Lista de elementos
-                    if items.isEmpty {
-                        Spacer()
-                        
-                        VStack(spacing: 16) {
-                            Image(systemName: "doc.text")
-                                .font(.system(size: 60))
-                                .foregroundColor(DesignSystem.textGray.opacity(0.5))
-                            
-                            Text("No hay registros")
-                                .font(DesignSystem.headline())
-                                .foregroundColor(DesignSystem.textGray)
-                            
-                            Text("Agrega el primer registro presionando el botón +")
-                                .font(DesignSystem.body())
-                                .foregroundColor(DesignSystem.textGray)
-                                .multilineTextAlignment(.center)
-                        }
-                        .padding(.horizontal, DesignSystem.padding)
-                        
-                        Spacer()
-                    } else {
-                        // Lista con diseño personalizado
-                        ScrollView {
-                            LazyVStack(spacing: 12) {
-                                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                                    CardView {
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text("Registro #\(index + 1)")
-                                                    .font(DesignSystem.headline())
-                                                    .foregroundColor(DesignSystem.primaryText)
-                                                
-                                                Text(item.timestamp.formatted(date: .abbreviated, time: .shortened))
-                                                    .font(DesignSystem.caption())
-                                                    .foregroundColor(DesignSystem.textGray)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            Button(action: {
-                                                deleteItem(item)
-                                            }) {
-                                                Image(systemName: "trash.circle.fill")
-                                                    .font(.title2)
-                                                    .foregroundColor(.red.opacity(0.7))
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, DesignSystem.padding)
-                        }
-                    }
-                }
-            }
-            .navigationTitle("")
-            .navigationBarHidden(true)
-        }
-    }
-    
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-    
-    private func deleteItem(_ item: Item) {
-        withAnimation {
-            modelContext.delete(item)
-        }
-    }
-}
-
-// MARK: - Safety Tips Sheet (Sin cambios)
+// MARK: - Safety Tips Sheet
 struct SafetyTipsSheet: View {
     @Environment(\.dismiss) private var dismiss
     

@@ -1,10 +1,3 @@
-//
-//  AssesstmentView.swift
-//  prueba-shield
-//
-//  Created by Alumno on 08/06/25.
-//
-
 import SwiftUI
 
 // MARK: - Home Assessment View
@@ -54,6 +47,74 @@ struct AssessmentView: View {
             .navigationTitle("")
             .navigationBarHidden(true)
         }
+    }
+}
+
+// MARK: - Energy Explanation Helper
+struct EnergyExplanation {
+    let icon: String
+    let color: Color
+    let title: String
+    let description: String
+}
+
+extension ResultsView {
+    private func getEnergyExplanations(score: Int) -> [EnergyExplanation] {
+        let missingPoints = 16 - score
+        var explanations: [EnergyExplanation] = []
+        
+        // Explicaciones basadas en qué tan baja es la puntuación
+        if missingPoints >= 8 { // Score muy bajo (0-8)
+            explanations.append(EnergyExplanation(
+                icon: "thermometer.sun.fill",
+                color: .red,
+                title: "Sobrecalentamiento del hogar",
+                description: "Sin aislamiento y protección solar, tu hogar absorbe calor excesivo, forzando al AC a trabajar constantemente."
+            ))
+        }
+        
+        if missingPoints >= 6 { // Score bajo-medio (0-10)
+            explanations.append(EnergyExplanation(
+                icon: "wind",
+                color: DesignSystem.primaryBlue,
+                title: "Ventilación deficiente",
+                description: "La falta de ventilación cruzada obliga a usar aire acondicionado incluso cuando el exterior está fresco."
+            ))
+        }
+        
+        if missingPoints >= 4 { // Score medio (0-12)
+            explanations.append(EnergyExplanation(
+                icon: "sun.max.fill",
+                color: .orange,
+                title: "Ganancia solar directa",
+                description: "Ventanas sin protección y superficies oscuras aumentan la temperatura interior hasta 10°C más."
+            ))
+        }
+        
+        if missingPoints >= 2 { // Score alto pero no perfecto (0-14)
+            explanations.append(EnergyExplanation(
+                icon: "house.fill",
+                color: .green,
+                title: "Optimización térmica",
+                description: "Pequeñas mejoras en aislamiento y sombra pueden generar ahorros significativos a largo plazo."
+            ))
+        }
+        
+        return explanations
+    }
+    
+    private func calculateMonthlySavings(score: Int) -> Int {
+        let missingPoints = 16 - score
+        let percentageSavings = missingPoints * 15
+        
+        // Estimación basada en factura eléctrica promedio en México ($1,500-3,000 MXN/mes)
+        let averageElectricBill = 2250 // MXN
+        let acPercentageOfBill = 0.6 // 60% de la factura suele ser AC en climas calurosos
+        
+        let acCost = Double(averageElectricBill) * acPercentageOfBill
+        let savings = acCost * (Double(percentageSavings) / 100.0)
+        
+        return Int(savings)
     }
 }
 
@@ -338,7 +399,7 @@ struct ResultsView: View {
                 // Energy savings estimation
                 if score < 14 {
                     CardView {
-                        VStack(spacing: 12) {
+                        VStack(spacing: 16) {
                             HStack {
                                 Image(systemName: "leaf.fill")
                                     .foregroundColor(.green)
@@ -371,6 +432,74 @@ struct ResultsView: View {
                                         .foregroundColor(.green)
                                 }
                             }
+                            
+                            // Nueva explicación del por qué del ahorro
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Image(systemName: "lightbulb.fill")
+                                        .foregroundColor(.orange)
+                                    Text("¿Por qué este ahorro?")
+                                        .font(DesignSystem.body())
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(DesignSystem.primaryText)
+                                    Spacer()
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 8) {
+                                    let explanations = getEnergyExplanations(score: score)
+                                    ForEach(Array(explanations.enumerated()), id: \.offset) { index, explanation in
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Image(systemName: explanation.icon)
+                                                .font(.caption)
+                                                .foregroundColor(explanation.color)
+                                                .frame(width: 16)
+                                            
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(explanation.title)
+                                                    .font(DesignSystem.caption())
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(DesignSystem.primaryText)
+                                                
+                                                Text(explanation.description)
+                                                    .font(.system(size: 11))
+                                                    .foregroundColor(DesignSystem.textGray)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
+                                            
+                                            Spacer()
+                                        }
+                                        .padding(.vertical, 2)
+                                    }
+                                }
+                                
+                                // Cálculo detallado
+                                HStack {
+                                    Image(systemName: "calculator")
+                                        .foregroundColor(DesignSystem.primaryBlue)
+                                    Text("Cálculo estimado:")
+                                        .font(DesignSystem.caption())
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(DesignSystem.primaryText)
+                                    Spacer()
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("• Cada mejora térmica reduce ~15% el uso de climatización")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(DesignSystem.textGray)
+                                    Text("• Temperaturas más frescas = menor tiempo de AC encendido")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(DesignSystem.textGray)
+                                    Text("• Ahorro promedio: $\(calculateMonthlySavings(score: score)) MXN/mes")
+                                        .font(.system(size: 10))
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.green)
+                                }
+                            }
+                            .padding(.top, 8)
+                            .padding(12)
+                            .background(DesignSystem.lightGray)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
                     .padding(.horizontal, DesignSystem.padding)
