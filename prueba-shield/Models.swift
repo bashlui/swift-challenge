@@ -417,30 +417,38 @@ struct CoolZone: Identifiable {
     let description: String
 }
 
-enum CoolZoneType: String, CaseIterable {
+enum CoolZoneType: String, CaseIterable, Equatable  {
     case library = "Biblioteca"
     case mall = "Centro Comercial"
     case community = "Centro Comunitario"
     case hospital = "Hospital"
     case park = "Parque con Sombra"
-    
-    var icon: String {
-        switch self {
-        case .library: return "book.fill"
-        case .mall: return "building.2.fill"
-        case .community: return "person.3.fill"
-        case .hospital: return "cross.fill"
-        case .park: return "tree.fill"
+        
+        var icon: String {
+            switch self {
+            case .mall: return "building.2"
+            case .park: return "tree"
+            case .library: return "book"
+            case .community: return "house.lodge"
+            case .hospital: return "cross"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .mall: return .blue
+            case .park: return .green
+            case .library: return .purple
+            case .community: return .orange
+            case .hospital: return .red
+            }
         }
     }
-    
-    var color: Color {
-        switch self {
-        case .library: return DesignSystem.primaryBlue
-        case .mall: return DesignSystem.secondaryBlue
-        case .community: return DesignSystem.accentBlue
-        case .hospital: return .red
-        case .park: return .green
-        }
+
+
+// MARK: - CoolZone Equatable
+extension CoolZone: Equatable {
+    static func == (lhs: CoolZone, rhs: CoolZone) -> Bool {
+        return lhs.id == rhs.id
     }
 }

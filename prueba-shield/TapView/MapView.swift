@@ -21,6 +21,7 @@ struct MapView: View {
     
     @State private var selectedZone: CoolZone?
     @State private var showingLocationPrompt = false
+    @State private var isMapCentered = true
     
     let coolSpots = [
         CoolZone(name: "Biblioteca Central", type: .library,
@@ -54,7 +55,7 @@ struct MapView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Map(position: $position) {
+                Map(position: $position, interactionModes: .all) {
                     if let userLocation = locationManager.location {
                         Annotation("Tu ubicación", coordinate: userLocation.coordinate) {
                             ZStack {
@@ -118,17 +119,31 @@ struct MapView: View {
                         }
                     }
                 }
+                .onMapCameraChange { context in
+                    // Detectar cuando el usuario mueve el mapa manualmente
+                    if let userLocation = locationManager.location {
+                        let userRegion = MKCoordinateRegion(
+                            center: userLocation.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                        )
+                        
+                        let centerDistance = distance(from: context.region.center, to: userLocation.coordinate)
+                        isMapCentered = centerDistance < 100 // Considera centrado si está a menos de 100m
+                    }
+                }
                 .onAppear {
                     checkLocationPermission()
                 }
                 .onChange(of: locationManager.location) { oldValue, newValue in
-                    if let location = newValue {
-                        position = MapCameraPosition.region(
-                            MKCoordinateRegion(
-                                center: location.coordinate,
-                                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                    if let location = newValue, isMapCentered {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            position = MapCameraPosition.region(
+                                MKCoordinateRegion(
+                                    center: location.coordinate,
+                                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                                )
                             )
-                        )
+                        }
                     }
                 }
                 
@@ -148,7 +163,8 @@ struct MapView: View {
                 VStack {
                     HStack {
                         Spacer()
-                        VStack {
+                        VStack(spacing: 12) {
+                            // Botón de ubicación actual
                             Button(action: {
                                 if locationManager.authorizationStatus == .notDetermined {
                                     locationManager.requestPermission()
@@ -170,6 +186,24 @@ struct MapView: View {
                             .animation(locationManager.isLoading ?
                                       Animation.linear(duration: 1).repeatForever(autoreverses: false) :
                                       .default, value: locationManager.isLoading)
+                            
+                            // Nuevo botón de centrar mapa
+                            Button(action: {
+                                centerMapOnUserLocation()
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(DesignSystem.white)
+                                        .frame(width: 44, height: 44)
+                                        .shadow(color: Color.black.opacity(0.15), radius: 4)
+                                    
+                                    Image(systemName: isMapCentered ? "location.north.fill" : "location.north")
+                                        .foregroundColor(isMapCentered ? DesignSystem.primaryBlue : DesignSystem.textGray)
+                                        .font(.title3)
+                                }
+                            }
+                            .disabled(locationManager.location == nil)
+                            .opacity(locationManager.location == nil ? 0.5 : 1.0)
                             
                             Spacer()
                         }
@@ -223,6 +257,30 @@ struct MapView: View {
                 Text("Ve a Configuración > Privacidad > Servicios de Localización para permitir el acceso.")
             }
         }
+    }
+    
+    private func centerMapOnUserLocation() {
+        guard let userLocation = locationManager.location else { return }
+        
+        withAnimation(.easeInOut(duration: 0.5)) {
+            position = MapCameraPosition.region(
+                MKCoordinateRegion(
+                    center: userLocation.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                )
+            )
+            isMapCentered = true
+        }
+        
+        // Feedback háptico si está habilitado
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+    }
+    
+    private func distance(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
+        let fromLocation = CLLocation(latitude: from.latitude, longitude: from.longitude)
+        let toLocation = CLLocation(latitude: to.latitude, longitude: to.longitude)
+        return fromLocation.distance(from: toLocation)
     }
     
     private func checkLocationPermission() {

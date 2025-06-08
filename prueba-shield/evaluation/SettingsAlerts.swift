@@ -347,7 +347,7 @@ struct SettingsContent: View {
     }
 }
 
-// MARK: - Alerts Content
+// MARK: - Enhanced Alerts Content
 struct AlertsContent: View {
     @ObservedObject var themeManager: ThemeManager
     @StateObject private var weatherManager = WeatherManager()
@@ -355,6 +355,7 @@ struct AlertsContent: View {
     @StateObject private var notificationManager = NotificationManager()
     @State private var alertsEnabled = true
     @State private var temperatureThreshold = 35.0
+    @State private var showingReminderSettings = false
     
     var body: some View {
         ScrollView {
@@ -364,14 +365,20 @@ struct AlertsContent: View {
                     weatherStatusCard(weather: weather)
                 }
                 
-                // Alert Configuration
-                alertConfigurationCard
+                // Heat Alert Configuration
+                heatAlertConfigurationCard
+                
+                // Protection Reminders Card
+                protectionRemindersCard
                 
                 Spacer(minLength: 20)
             }
         }
         .onAppear {
             setupLocationAndWeather()
+        }
+        .sheet(isPresented: $showingReminderSettings) {
+            ReminderSettingsSheet(notificationManager: notificationManager)
         }
     }
     
@@ -418,13 +425,13 @@ struct AlertsContent: View {
         .padding(.horizontal, DesignSystem.padding)
     }
     
-    private var alertConfigurationCard: some View {
+    private var heatAlertConfigurationCard: some View {
         CardView {
             VStack(alignment: .leading, spacing: 20) {
                 HStack {
-                    Image(systemName: "gear.circle.fill")
-                        .foregroundColor(DesignSystem.primaryBlue)
-                    Text("Configuración de Alertas")
+                    Image(systemName: "thermometer.sun.fill")
+                        .foregroundColor(.red)
+                    Text("Alertas de Calor")
                         .font(DesignSystem.headline())
                         .foregroundColor(DesignSystem.primaryText)
                     Spacer()
@@ -462,23 +469,131 @@ struct AlertsContent: View {
                                     .foregroundColor(DesignSystem.textGray)
                             }
                         }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, DesignSystem.padding)
+    }
+    
+    private var protectionRemindersCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack {
+                    Image(systemName: "shield.checkered")
+                        .foregroundColor(DesignSystem.primaryBlue)
+                    Text("Recordatorios de Protección")
+                        .font(DesignSystem.headline())
+                        .foregroundColor(DesignSystem.primaryText)
+                    Spacer()
+                }
+                
+                VStack(spacing: 16) {
+                    // Recordatorio de bloqueador solar
+                    HStack {
+                        Image(systemName: "sun.max.fill")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                            .frame(width: 40, height: 40)
+                            .background(Color.orange.opacity(0.1))
+                            .clipShape(Circle())
                         
-                        Toggle(isOn: $notificationManager.isAuthorized) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Notificaciones push")
-                                    .font(DesignSystem.body())
-                                    .foregroundColor(DesignSystem.primaryText)
-                                Text("Permite el envío de alertas automáticas")
-                                    .font(DesignSystem.caption())
-                                    .foregroundColor(DesignSystem.textGray)
-                            }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Bloqueador Solar")
+                                .font(DesignSystem.body())
+                                .fontWeight(.semibold)
+                                .foregroundColor(DesignSystem.primaryText)
+                            
+                            Text(notificationManager.sunscreenRemindersEnabled ?
+                                 "Cada \(Int(notificationManager.sunscreenInterval)) horas" :
+                                 "Desactivado")
+                                .font(DesignSystem.caption())
+                                .foregroundColor(DesignSystem.textGray)
                         }
-                        .tint(DesignSystem.primaryBlue)
-                        .onChange(of: notificationManager.isAuthorized) { oldValue, newValue in
-                            if newValue && !oldValue {
+                        
+                        Spacer()
+                        
+                        Toggle("", isOn: $notificationManager.sunscreenRemindersEnabled)
+                            .labelsHidden()
+                            .tint(DesignSystem.primaryBlue)
+                            .onChange(of: notificationManager.sunscreenRemindersEnabled) { _, _ in
+                                notificationManager.saveReminderSettings()
+                            }
+                    }
+                    
+                    // Recordatorio de hidratación
+                    HStack {
+                        Image(systemName: "drop.fill")
+                            .font(.title2)
+                            .foregroundColor(DesignSystem.primaryBlue)
+                            .frame(width: 40, height: 40)
+                            .background(DesignSystem.lightBlue)
+                            .clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Hidratación")
+                                .font(DesignSystem.body())
+                                .fontWeight(.semibold)
+                                .foregroundColor(DesignSystem.primaryText)
+                            
+                            Text(notificationManager.hydrationRemindersEnabled ?
+                                 "Cada \(Int(notificationManager.hydrationInterval)) horas" :
+                                 "Desactivado")
+                                .font(DesignSystem.caption())
+                                .foregroundColor(DesignSystem.textGray)
+                        }
+                        
+                        Spacer()
+                        
+                        Toggle("", isOn: $notificationManager.hydrationRemindersEnabled)
+                            .labelsHidden()
+                            .tint(DesignSystem.primaryBlue)
+                            .onChange(of: notificationManager.hydrationRemindersEnabled) { _, _ in
+                                notificationManager.saveReminderSettings()
+                            }
+                    }
+                    
+                    // Botón de configuración
+                    Button(action: {
+                        showingReminderSettings = true
+                    }) {
+                        HStack {
+                            Image(systemName: "gear")
+                                .font(.caption)
+                            Text("Configurar intervalos")
+                                .font(DesignSystem.caption())
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(DesignSystem.primaryBlue)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(DesignSystem.lightBlue)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    
+                    // Estado de permisos
+                    if !notificationManager.isAuthorized {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .font(.caption)
+                            
+                            Text("Activa las notificaciones para recibir recordatorios")
+                                .font(DesignSystem.caption())
+                                .foregroundColor(DesignSystem.textGray)
+                            
+                            Spacer()
+                            
+                            Button("Activar") {
                                 notificationManager.requestPermission()
                             }
+                            .font(DesignSystem.caption())
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignSystem.primaryBlue)
                         }
+                        .padding(12)
+                        .background(Color.orange.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }
@@ -494,6 +609,211 @@ struct AlertsContent: View {
     }
 }
 
+// MARK: - Reminder Settings Sheet
+struct ReminderSettingsSheet: View {
+    @ObservedObject var notificationManager: NotificationManager
+    @Environment(\.dismiss) private var dismiss
+    @State private var tempSunscreenInterval: Double
+    @State private var tempHydrationInterval: Double
+    
+    init(notificationManager: NotificationManager) {
+        self.notificationManager = notificationManager
+        self._tempSunscreenInterval = State(initialValue: notificationManager.sunscreenInterval)
+        self._tempHydrationInterval = State(initialValue: notificationManager.hydrationInterval)
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                GradientBackground()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Header
+                        VStack(spacing: 12) {
+                            Image(systemName: "bell.badge.fill")
+                                .font(.largeTitle)
+                                .foregroundColor(DesignSystem.primaryBlue)
+                            
+                            Text("Configurar Recordatorios")
+                                .font(DesignSystem.title2())
+                                .foregroundColor(DesignSystem.primaryText)
+                            
+                            Text("Ajusta la frecuencia de los recordatorios según tus necesidades")
+                                .font(DesignSystem.body())
+                                .foregroundColor(DesignSystem.textGray)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.top, 20)
+                        .padding(.horizontal, DesignSystem.padding)
+                        
+                        // Sunscreen interval
+                        CardView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack {
+                                    Image(systemName: "sun.max.fill")
+                                        .foregroundColor(.orange)
+                                    Text("Bloqueador Solar")
+                                        .font(DesignSystem.headline())
+                                        .foregroundColor(DesignSystem.primaryText)
+                                    Spacer()
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Recordar cada: \(formatHours(tempSunscreenInterval))")
+                                        .font(DesignSystem.body())
+                                        .foregroundColor(DesignSystem.primaryText)
+                                    
+                                    Slider(value: $tempSunscreenInterval, in: 0.5...6, step: 0.5)
+                                        .tint(.orange)
+                                    
+                                    HStack {
+                                        Text("30 min")
+                                            .font(DesignSystem.caption())
+                                            .foregroundColor(DesignSystem.textGray)
+                                        Spacer()
+                                        Text("6 horas")
+                                            .font(DesignSystem.caption())
+                                            .foregroundColor(DesignSystem.textGray)
+                                    }
+                                    
+                                    Text("Recomendado: Cada 2 horas en exposición directa al sol")
+                                        .font(DesignSystem.caption())
+                                        .foregroundColor(DesignSystem.textGray)
+                                        .italic()
+                                }
+                            }
+                        }
+                        .padding(.horizontal, DesignSystem.padding)
+                        
+                        // Hydration interval
+                        CardView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack {
+                                    Image(systemName: "drop.fill")
+                                        .foregroundColor(DesignSystem.primaryBlue)
+                                    Text("Hidratación")
+                                        .font(DesignSystem.headline())
+                                        .foregroundColor(DesignSystem.primaryText)
+                                    Spacer()
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Recordar cada: \(formatHours(tempHydrationInterval))")
+                                        .font(DesignSystem.body())
+                                        .foregroundColor(DesignSystem.primaryText)
+                                    
+                                    Slider(value: $tempHydrationInterval, in: 0.5...6, step: 0.5)
+                                        .tint(DesignSystem.primaryBlue)
+                                    
+                                    HStack {
+                                        Text("30 min")
+                                            .font(DesignSystem.caption())
+                                            .foregroundColor(DesignSystem.textGray)
+                                        Spacer()
+                                        Text("6 horas")
+                                            .font(DesignSystem.caption())
+                                            .foregroundColor(DesignSystem.textGray)
+                                    }
+                                    
+                                    Text("Recomendado: Cada 1-2 horas en clima cálido")
+                                        .font(DesignSystem.caption())
+                                        .foregroundColor(DesignSystem.textGray)
+                                        .italic()
+                                }
+                            }
+                        }
+                        .padding(.horizontal, DesignSystem.padding)
+                        
+                        // Next reminders preview
+                        if notificationManager.sunscreenRemindersEnabled || notificationManager.hydrationRemindersEnabled {
+                            CardView {
+                                VStack(alignment: .leading, spacing: 16) {
+                                    HStack {
+                                        Image(systemName: "clock.fill")
+                                            .foregroundColor(DesignSystem.primaryBlue)
+                                        Text("Próximos Recordatorios")
+                                            .font(DesignSystem.headline())
+                                            .foregroundColor(DesignSystem.primaryText)
+                                        Spacer()
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        if notificationManager.sunscreenRemindersEnabled {
+                                            HStack {
+                                                Image(systemName: "sun.max.fill")
+                                                    .foregroundColor(.orange)
+                                                    .font(.caption)
+                                                Text("Bloqueador: ")
+                                                    .font(DesignSystem.caption())
+                                                    .foregroundColor(DesignSystem.textGray)
+                                                Text("en \(formatHours(tempSunscreenInterval))")
+                                                    .font(DesignSystem.caption())
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(DesignSystem.primaryText)
+                                            }
+                                        }
+                                        
+                                        if notificationManager.hydrationRemindersEnabled {
+                                            HStack {
+                                                Image(systemName: "drop.fill")
+                                                    .foregroundColor(DesignSystem.primaryBlue)
+                                                    .font(.caption)
+                                                Text("Hidratación: ")
+                                                    .font(DesignSystem.caption())
+                                                    .foregroundColor(DesignSystem.textGray)
+                                                Text("en \(formatHours(tempHydrationInterval))")
+                                                    .font(DesignSystem.caption())
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(DesignSystem.primaryText)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, DesignSystem.padding)
+                        }
+                        
+                        Spacer(minLength: 20)
+                    }
+                }
+            }
+            .navigationTitle("Intervalos")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancelar") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Guardar") {
+                        notificationManager.sunscreenInterval = tempSunscreenInterval
+                        notificationManager.hydrationInterval = tempHydrationInterval
+                        notificationManager.saveReminderSettings()
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+    }
+    
+    private func formatHours(_ hours: Double) -> String {
+        if hours < 1 {
+            return "\(Int(hours * 60)) minutos"
+        } else if hours == 1 {
+            return "1 hora"
+        } else if hours.truncatingRemainder(dividingBy: 1) == 0 {
+            return "\(Int(hours)) horas"
+        } else {
+            let wholeHours = Int(hours)
+            let minutes = Int((hours - Double(wholeHours)) * 60)
+            return "\(wholeHours) h \(minutes) min"
+        }
+    }
+}
 // MARK: - About Sheet
 struct AboutSheet: View {
     @Environment(\.dismiss) private var dismiss

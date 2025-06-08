@@ -48,7 +48,7 @@ class WeatherManager: ObservableObject {
     @Published var isLoadingForecast = false
     @Published var errorMessage: String?
     
-    private let apiKey = "TU_API_KEY_AQUI"
+    private let apiKey = "03964635300b5a1f3250d08f59436eef"
     
     func fetchWeather(for location: CLLocation) {
         guard !apiKey.isEmpty && apiKey != "TU_API_KEY_AQUI" else {
@@ -272,18 +272,29 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 }
 
-// MARK: - Notification Manager
+// MARK: - Enhanced Notification Manager
 class NotificationManager: ObservableObject {
     @Published var isAuthorized = false
+    @Published var sunscreenRemindersEnabled = true
+    @Published var hydrationRemindersEnabled = true
+    @Published var sunscreenInterval: Double = 2.0 // horas
+    @Published var hydrationInterval: Double = 2.0 // horas
+    
+    private var sunscreenTimer: Timer?
+    private var hydrationTimer: Timer?
     
     init() {
         checkAuthorizationStatus()
+        loadReminderSettings()
     }
     
     func requestPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             DispatchQueue.main.async {
                 self.isAuthorized = granted
+                if granted {
+                    self.setupReminders()
+                }
             }
         }
     }
@@ -292,6 +303,98 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
                 self.isAuthorized = settings.authorizationStatus == .authorized
+                if self.isAuthorized {
+                    self.setupReminders()
+                }
+            }
+        }
+    }
+    
+    private func loadReminderSettings() {
+        sunscreenRemindersEnabled = UserDefaults.standard.bool(forKey: "sunscreenRemindersEnabled")
+        hydrationRemindersEnabled = UserDefaults.standard.bool(forKey: "hydrationRemindersEnabled")
+        
+        if let savedSunscreenInterval = UserDefaults.standard.object(forKey: "sunscreenInterval") as? Double {
+            sunscreenInterval = savedSunscreenInterval
+        }
+        
+        if let savedHydrationInterval = UserDefaults.standard.object(forKey: "hydrationInterval") as? Double {
+            hydrationInterval = savedHydrationInterval
+        }
+    }
+    
+    func saveReminderSettings() {
+        UserDefaults.standard.set(sunscreenRemindersEnabled, forKey: "sunscreenRemindersEnabled")
+        UserDefaults.standard.set(hydrationRemindersEnabled, forKey: "hydrationRemindersEnabled")
+        UserDefaults.standard.set(sunscreenInterval, forKey: "sunscreenInterval")
+        UserDefaults.standard.set(hydrationInterval, forKey: "hydrationInterval")
+        
+        setupReminders()
+    }
+    
+    func setupReminders() {
+        // Cancelar recordatorios existentes
+        cancelAllReminders()
+        
+        guard isAuthorized else { return }
+        
+        if sunscreenRemindersEnabled {
+            scheduleSunscreenReminder()
+        }
+        
+        if hydrationRemindersEnabled {
+            scheduleHydrationReminder()
+        }
+    }
+    
+    private func scheduleSunscreenReminder() {
+        let content = UNMutableNotificationContent()
+        content.title = "☀️ Protección Solar"
+        content.body = "Es hora de reaplicar tu bloqueador solar. Protege tu piel del sol."
+        content.sound = UNNotificationSound.default
+        content.categoryIdentifier = "SUNSCREEN_REMINDER"
+        
+        // Crear trigger repetitivo
+        let trigger = UNTimeIntervalNotificationTrigger(
+            timeInterval: sunscreenInterval * 3600, // convertir horas a segundos
+            repeats: true
+        )
+        
+        let request = UNNotificationRequest(
+            identifier: "sunscreen_reminder",
+            content: content,
+            trigger: trigger
+        )
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling sunscreen reminder: \(error)")
+            }
+        }
+    }
+    
+    private func scheduleHydrationReminder() {
+        let content = UNMutableNotificationContent()
+        content.title = "💧 Hora de Hidratarte"
+        content.body = "Bebe agua para mantenerte fresco y saludable. Tu cuerpo lo necesita."
+        content.sound = UNNotificationSound.default
+        content.categoryIdentifier = "HYDRATION_REMINDER"
+        
+        // Crear trigger repetitivo
+        let trigger = UNTimeIntervalNotificationTrigger(
+            timeInterval: hydrationInterval * 3600, // convertir horas a segundos
+            repeats: true
+        )
+        
+        let request = UNNotificationRequest(
+            identifier: "hydration_reminder",
+            content: content,
+            trigger: trigger
+        )
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling hydration reminder: \(error)")
             }
         }
     }
@@ -303,10 +406,46 @@ class NotificationManager: ObservableObject {
         content.title = "⚠️ Alerta de Calor Extremo"
         content.body = "Temperatura actual: \(temperature)°C. Busca refugio inmediatamente."
         content.sound = UNNotificationSound.default
+        content.categoryIdentifier = "HEAT_ALERT"
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        let request = UNNotificationRequest(
+            identifier: "heat_alert_\(UUID().uuidString)",
+            content: content,
+            trigger: trigger
+        )
         
         UNUserNotificationCenter.current().add(request)
+    }
+    
+    func cancelAllReminders() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: ["sunscreen_reminder", "hydration_reminder"]
+        )
+    }
+    
+    func cancelSunscreenReminder() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: ["sunscreen_reminder"]
+        )
+    }
+    
+    func cancelHydrationReminder() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: ["hydration_reminder"]
+        )
+    }
+    
+    // Métodos de utilidad para obtener el próximo recordatorio
+    func getNextReminderTimes() -> (sunscreen: Date?, hydration: Date?) {
+        let now = Date()
+        
+        let sunscreenNext = sunscreenRemindersEnabled ?
+            now.addingTimeInterval(sunscreenInterval * 3600) : nil
+        
+        let hydrationNext = hydrationRemindersEnabled ?
+            now.addingTimeInterval(hydrationInterval * 3600) : nil
+        
+        return (sunscreenNext, hydrationNext)
     }
 }
