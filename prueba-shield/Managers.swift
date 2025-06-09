@@ -48,7 +48,7 @@ class WeatherManager: ObservableObject {
     @Published var isLoadingForecast = false
     @Published var errorMessage: String?
     
-    private let apiKey = "03964635300b5a1f3250d08f59436eef"
+    private let apiKey = ""
     
     func fetchWeather(for location: CLLocation) {
         guard !apiKey.isEmpty && apiKey != "TU_API_KEY_AQUI" else {
