@@ -231,22 +231,6 @@ xcodebuild test -project HeatShield.xcodeproj -scheme HeatShield -destination 'p
 - [ ] Comunidad y reportes colaborativos
 - [ ] Machine Learning para recomendaciones personalizadas
 
-## ⚡ Performance y Optimización
-
-### 📊 **Métricas de Performance**
-- **Tiempo de inicio:** < 2 segundos
-- **Carga de mapa:** < 3 segundos
-- **Respuesta API:** < 1 segundo (con cache)
-- **Uso de memoria:** < 50MB promedio
-- **Batería:** Optimizado para uso prolongado
-
-### 🔋 **Optimizaciones Implementadas**
-- Cache inteligente de datos meteorológicos (5 minutos)
-- Lazy loading de componentes de UI
-- Gestión eficiente de ubicación
-- Compresión de imágenes y assets
-- Background refresh inteligente
-
 ## 🛡️ Seguridad y Privacidad
 
 ### 🔒 **Principios de Privacidad**
@@ -255,11 +239,6 @@ xcodebuild test -project HeatShield.xcodeproj -scheme HeatShield -destination 'p
 - **Sin tracking:** No se recopilan datos de comportamiento
 - **Transparencia total:** Política de privacidad clara y accesible
 
-### 🔐 **Medidas de Seguridad**
-- API keys almacenadas de forma segura
-- Validación de datos de entrada
-- Manejo seguro de errores
-- Cumplimiento con guidelines de Apple
 
 ## 📄 Licencia
 
@@ -271,12 +250,6 @@ Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE
 - **Victor Abel Camacho Rodriguez**
 - **Óscar Cardenas Valdez**
 - **Hermann Powells Rivera**
-
-## 📞 Soporte y Contacto
-
-- **Issues:** [GitHub Issues](https://github.com/tu-usuario/heatshield/issues)
-- **Email:** support@heatshield.app
-- **Documentación:** [Wiki del Proyecto](https://github.com/tu-usuario/heatshield/wiki)
 
 ## 🙏 Agradecimientos
 
