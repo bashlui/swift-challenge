@@ -249,7 +249,7 @@ Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE
 - **Luis Antonio Bolaina Dominguez**
 - **Victor Abel Camacho Rodriguez**
 - **Óscar Cardenas Valdez**
-- **Hermann Powells Rivera**
+- **Hermann Pauwells Rivera**
 
 ## 🙏 Agradecimientos
 
