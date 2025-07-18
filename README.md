@@ -1,193 +1,216 @@
-# 🛡️ HeatShield
+# HeatShield  
+**Smart Protection Against Extreme Heat**
 
-**Protección Inteligente contra el Calor Extremo**
+An iOS application developed in SwiftUI that protects lives during extreme heat events by providing smart tools to find shelter, assess home preparedness, and receive critical safety alerts.
 
-Una aplicación iOS desarrollada en SwiftUI que protege vidas durante eventos de calor extremo, proporcionando herramientas inteligentes para encontrar refugio, evaluar la preparación del hogar y recibir alertas críticas de seguridad.
+---
 
-## 📱 Características Principales
+## Key Features
 
-### 🌡️ **Monitoreo Climático en Tiempo Real**
-- Integración con OpenWeatherMap API
-- Datos meteorológicos actualizados (temperatura, humedad, viento)
-- Índice de calor con niveles de peligro (Seguro, Precaución, Advertencia, Peligro, Extremo)
-- Soporte para Celsius y Fahrenheit
+### Real-Time Climate Monitoring
+- Integration with OpenWeatherMap API
+- Up-to-date weather data (temperature, humidity, wind)
+- Heat index with danger levels: Safe, Caution, Warning, Danger, Extreme
+- Celsius and Fahrenheit support
 
-### 🗺️ **Mapa de Zonas Frescas**
-- Localización GPS de refugios cercanos
-- Tipos de zonas: bibliotecas, centros comerciales, hospitales, parques, centros comunitarios
-- Cálculo de distancias en tiempo real
-- Navegación integrada con Apple Maps
-- Indicadores de horarios (24/7 vs horarios limitados)
+### Cool Zones Map
+- GPS localization of nearby shelters
+- Zone types: libraries, shopping malls, hospitals, parks, community centers
+- Real-time distance calculation
+- Integrated navigation with Apple Maps
+- Schedule indicators (24/7 vs. limited hours)
 
-### 🏠 **Evaluación Térmica del Hogar**
-- Cuestionario interactivo de 8 preguntas
-- Sistema de puntuación inteligente (0-16 puntos)
-- Recomendaciones personalizadas de mejora
-- Estimaciones de ahorro energético
-- Análisis de eficiencia térmica
+### Home Thermal Assessment
+- Interactive 8-question questionnaire
+- Smart scoring system (0-16 points)
+- Personalized improvement recommendations
+- Energy savings estimations
+- Thermal efficiency analysis
 
-### ⚠️ **Sistema de Alertas Personalizado**
-- Configuración de umbrales de temperatura
-- Notificaciones push automáticas
-- Estados de peligro por calor en tiempo real
-- Integración con el sistema de notificaciones de iOS
+### Personalized Alert System
+- Temperature threshold configuration
+- Automatic push notifications
+- Real-time heat danger statuses
+- iOS notification system integration
 
-### 📋 **Gestión de Datos**
-- Integración completa con SwiftData
-- Almacenamiento local de registros
-- Interfaz intuitiva para CRUD operations
-- Estadísticas del sistema
+### Data Management
+- Full integration with SwiftData
+- Local storage of records
+- Intuitive interface for CRUD operations
+- System statistics
 
-### ⚙️ **Configuración Avanzada**
-- Temas adaptativos (claro/oscuro/sistema)
-- Unidades de temperatura configurables
-- Control granular de notificaciones
-- Configuración de sonidos y vibración
+### Advanced Settings
+- Adaptive themes (light/dark/system)
+- Configurable temperature units
+- Granular notification control
+- Sound and vibration settings
 
-## 🏗️ Arquitectura del Proyecto
+---
 
-### 📁 **Estructura de Archivos**
+## Project Architecture
+
+### File Structure
 ```
-📁 HeatShield/
-├── 📱 App.swift                    # Entry point + SwiftData container
-├── 🧩 Models.swift                 # Data models & enums
-├── 🧰 Managers.swift               # Business logic managers
-├── 🎨 DesignSystem.swift           # UI components & design tokens
-├── 🏠 ContentView.swift            # TabView + Home + SwiftData integration
-├── 🗺️ MapView.swift               # Interactive map with cool zones
-├── 🏠 AssessmentView.swift         # Home thermal assessment
-└── ⚙️ SettingsAlertsView.swift     # Settings & alerts management
+HeatShield/
+├── App.swift              # Entry point + SwiftData container
+├── Models.swift           # Data models & enums
+├── Managers.swift         # Business logic managers
+├── DesignSystem.swift     # UI components & design tokens
+├── ContentView.swift      # TabView + Home + SwiftData integration
+├── MapView.swift          # Interactive map with cool zones
+├── AssessmentView.swift   # Home thermal assessment
+└── SettingsAlertsView.swift # Settings & alerts management
 ```
 
-### 🏛️ **Patrón de Arquitectura**
-- **MVVM (Model-View-ViewModel)** con `@ObservableObject`
-- **Managers especializados** para lógica de negocio
-- **Componentes reutilizables** con `@ViewBuilder`
-- **Separación clara de responsabilidades**
+### Architecture Pattern
+- MVVM (Model-View-ViewModel) with \`@ObservableObject\`
+- Specialized Managers for business logic
+- Reusable components with \`@ViewBuilder\`
+- Clear separation of responsibilities
 
-## 🛠️ Tecnologías Utilizadas
+---
 
-### 📱 **Frameworks iOS**
-- **SwiftUI** - Interface de usuario declarativa
-- **SwiftData** - Persistencia de datos
-- **CoreLocation** - Servicios de ubicación
-- **MapKit** - Mapas interactivos
-- **UserNotifications** - Notificaciones push
+## Technologies Used
 
-### 🌐 **APIs Externas**
-- **OpenWeatherMap API** - Datos meteorológicos en tiempo real
-- **Apple Maps** - Navegación y direcciones
+### iOS Frameworks
+- SwiftUI - Declarative user interface
+- SwiftData - Data persistence
+- CoreLocation - Location services
+- MapKit - Interactive maps
+- UserNotifications - Push notifications
 
-### 🎨 **UI/UX**
-- **Sistema de diseño personalizado** con tokens consistentes
-- **Gradientes y animaciones** fluidas
-- **SF Symbols** para iconografía
-- **Soporte para Dark Mode**
-- **Diseño responsive** para diferentes tamaños de pantalla
+### External APIs
+- OpenWeatherMap API - Real-time weather data
+- Apple Maps - Navigation and directions
 
-## 🚀 Instalación y Configuración
+---
 
-### 📋 **Requisitos**
+## UI/UX
+- Custom design system with consistent tokens
+- Smooth gradients and animations
+- SF Symbols for iconography
+- Dark Mode support
+- Responsive design for various screen sizes
+
+---
+
+## Installation and Configuration
+
+### Requirements
 - iOS 16.0+
 - Xcode 15.0+
 - Swift 5.9+
-- Cuenta de desarrollador de Apple
+- Apple Developer Account
 
-### ⚙️ **Configuración del Proyecto**
+### Project Setup
 
-1. **Clonar el repositorio:**
+**Clone the repository:**
 ```bash
 git clone https://github.com/tu-usuario/heatshield.git
 cd heatshield
 ```
 
-2. **Configurar API Key de OpenWeatherMap:**
-   - Registrarse en [OpenWeatherMap](https://openweathermap.org/api)
-   - Crear un archivo `Config.plist`:
+**Configure OpenWeatherMap API Key:**
+- Register at OpenWeatherMap
+- Create a \`Config.plist\` file:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>WeatherAPIKey</key>
-    <string>TU_API_KEY_AQUI</string>
+    <string>YOUR_API_KEY_HERE</string>
 </dict>
 </plist>
 ```
 
-3. **Configurar permisos en Info.plist:**
+**Configure permissions in \`Info.plist\`:**
 ```xml
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>Necesitamos tu ubicación para mostrarte las zonas frescas cercanas</string>
+<string>We need your location to show you nearby cool zones</string>
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>Necesitamos tu ubicación para alertas de emergencia por calor</string>
+<string>We need your location for emergency heat alerts</string>
 ```
 
-4. **Compilar y ejecutar:**
+**Compile and run:**
 ```bash
-# Abrir en Xcode
+# Open in Xcode
 open HeatShield.xcodeproj
 
-# O usar xcodebuild
+# Or use xcodebuild
 xcodebuild -project HeatShield.xcodeproj -scheme HeatShield -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
-## 📊 Funcionalidades Detalladas
+---
 
-### 🌡️ **Sistema de Índice de Calor**
-| Temperatura | Índice | Color | Recomendación |
-|-------------|--------|-------|---------------|
-| < 27°C | Seguro | 🟢 Verde | Actividad normal |
-| 27-32°C | Precaución | 🟡 Amarillo | Hidratación frecuente |
-| 32-37°C | Advertencia | 🟠 Naranja | Limitar actividad exterior |
-| 37-42°C | Peligro | 🔴 Rojo | Buscar refugio inmediato |
-| > 42°C | Extremo | 🟣 Morado | Emergencia médica |
+## Detailed Functionalities
 
-### 🏠 **Sistema de Evaluación del Hogar**
-**Categorías evaluadas:**
-- Reflectividad del techo
-- Ventilación cruzada
-- Cortinas térmicas
-- Sombra exterior
-- Aislamiento térmico
-- Sistemas de climatización
-- Vidrios especializados
-- Gestión de aberturas
+### Heat Index System
 
-**Puntuación:**
-- **14-16 puntos:** 🏆 Excelente (Hogar óptimamente preparado)
-- **10-13 puntos:** ⭐ Muy Bueno (Preparación sólida)
-- **6-9 puntos:** 👍 Bueno (Mejoras recomendadas)
-- **3-5 puntos:** ⚠️ Necesita mejoras (Adaptaciones importantes)
-- **0-2 puntos:** 🚨 Crítico (Intervención urgente)
+| Temperature     | Index     | Color   | Recommendation              |
+|----------------|-----------|---------|-----------------------------|
+| < 27°C          | Safe      | Green   | Normal activity             |
+| 27-32°C         | Caution   | Yellow  | Frequent hydration          |
+| 32-37°C         | Warning   | Orange  | Limit outdoor activity      |
+| 37-42°C         | Danger    | Red     | Seek immediate shelter      |
+| > 42°C          | Extreme   | Purple  | Medical emergency           |
 
-### 🗺️ **Tipos de Zonas Frescas**
-- 📚 **Bibliotecas** - Aire acondicionado gratuito, espacios públicos
-- 🏢 **Centros Comerciales** - Múltiples áreas climatizadas
-- 🏥 **Hospitales** - Disponibilidad 24/7, atención médica
-- 🌳 **Parques** - Áreas sombreadas naturales, fuentes de agua
-- 👥 **Centros Comunitarios** - Refugios oficiales autorizados
+---
 
-## 🔧 Desarrollo y Contribución
+### Home Assessment System
 
-### 🏗️ **Estructura de Desarrollo**
+**Categories evaluated:**
+- Roof reflectivity
+- Cross-ventilation
+- Thermal curtains
+- Outdoor shading
+- Thermal insulation
+- Climate control systems
+- Specialized glazing
+- Opening management
 
+**Scoring:**
+- 14–16 points: Excellent (Optimally prepared home)
+- 10–13 points: Very Good (Solid preparedness)
+- 6–9 points: Good (Recommended improvements)
+- 3–5 points: Needs improvements (Significant adaptations)
+- 0–2 points: Critical (Urgent intervention)
+
+---
+
+### Cool Zone Types
+
+- **Libraries** - Free air conditioning, public spaces  
+- **Shopping Malls** - Multiple air-conditioned areas  
+- **Hospitals** - 24/7 availability, medical attention  
+- **Parks** - Natural shaded areas, water fountains  
+- **Community Centers** - Official authorized shelters  
+
+---
+
+## Development and Contribution
+
+### Development Structure
+
+**Manager Example:**
 ```swift
-// Ejemplo de Manager
 class WeatherManager: ObservableObject {
     @Published var currentWeather: WeatherData?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+
     func fetchWeather(for location: CLLocation) {
-        // Implementación...
+        // Implementation...
     }
 }
+```
 
-// Ejemplo de Vista Componente
+**Component View Example:**
+```swift
 struct WeatherCard: View {
     @ObservedObject var weatherManager: WeatherManager
-    
+
     var body: some View {
         CardView {
             // UI implementation...
@@ -196,72 +219,85 @@ struct WeatherCard: View {
 }
 ```
 
-### 🧪 **Testing**
+---
+
+## Testing
+
 ```bash
-# Ejecutar tests unitarios
+# Run unit tests
 xcodebuild test -project HeatShield.xcodeproj -scheme HeatShield -destination 'platform=iOS Simulator,name=iPhone 15'
 
-# Tests de UI
+# UI tests
 xcodebuild test -project HeatShield.xcodeproj -scheme HeatShield -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:HeatShieldUITests
 ```
 
-### 📝 **Convenciones de Código**
-- **Nomenclatura:** PascalCase para tipos, camelCase para variables
-- **Organización:** Grupos por funcionalidad con `// MARK:`
-- **Documentación:** Comentarios Swift para APIs públicas
-- **SwiftLint:** Configuración incluida para consistencia
+---
 
-## 🔮 Roadmap y Funcionalidades Futuras
+## Code Conventions
 
-### 📅 **Versión 1.1**
-- [ ] Widget iOS para temperatura actual
-- [ ] Notificaciones programadas por ubicación
-- [ ] Modo offline con datos en caché
-- [ ] Localización completa (español/inglés)
-
-### 📅 **Versión 1.2**
-- [ ] Apple Watch companion app
-- [ ] Integración con HealthKit
-- [ ] Análisis predictivo de calor
-- [ ] Compartir evaluaciones del hogar
-
-### 📅 **Versión 2.0**
-- [ ] ARKit para visualización de temperatura
-- [ ] Integración con IoT home devices
-- [ ] Comunidad y reportes colaborativos
-- [ ] Machine Learning para recomendaciones personalizadas
-
-## 🛡️ Seguridad y Privacidad
-
-### 🔒 **Principios de Privacidad**
-- **Datos locales:** Toda la información personal se almacena en el dispositivo
-- **Ubicación mínima:** Solo se solicita cuando es necesario
-- **Sin tracking:** No se recopilan datos de comportamiento
-- **Transparencia total:** Política de privacidad clara y accesible
-
-
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE](LICENSE) para detalles.
-
-## 👥 Contribuidores
-
-- **Luis Antonio Bolaina Dominguez**
-- **Victor Abel Camacho Rodriguez**
-- **Óscar Cardenas Valdez**
-- **Hermann Pauwells Rivera**
-
-## 🙏 Agradecimientos
-
-- **OpenWeatherMap** por proporcionar datos meteorológicos confiables
-- **Apple** por las herramientas de desarrollo iOS
-- **Comunidad SwiftUI** por recursos y inspiración
-- **Organizaciones de salud pública** por investigación sobre eventos de calor extremo
+- **Naming:** PascalCase for types, camelCase for variables
+- **Organization:** Groups by functionality with \`// MARK:\`
+- **Documentation:** Swift comments for public APIs
+- **SwiftLint:** Configuration included for consistency
 
 ---
 
-**⚠️ Importante:** HeatShield es una herramienta de asistencia y no reemplaza el juicio médico profesional. En caso de emergencia médica, contacta inmediatamente a los servicios de emergencia locales.
+## Roadmap and Future Features
+
+### Version 1.1
+- iOS Widget for current temperature
+- Location-based scheduled notifications
+- Offline mode with cached data
+- Full localization (Spanish/English)
+
+### Version 1.2
+- Apple Watch companion app
+- HealthKit integration
+- Predictive heat analysis
+- Share home assessments
+
+### Version 2.0
+- ARKit for temperature visualization
+- Integration with IoT home devices
+- Community and collaborative reporting
+- Machine Learning for personalized recommendations
 
 ---
 
-*Desarrollado con ❤️ para proteger vidas durante eventos de calor extremo*
+## Security and Privacy
+
+### Privacy Principles
+- **Local data:** All personal information is stored on the device
+- **Minimum location:** Only requested when necessary
+- **No tracking:** No behavioral data is collected
+- **Full transparency:** Clear and accessible privacy policy
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the file `LICENSE` for details.
+
+---
+
+## Contributors
+
+- Luis Antonio Bolaina Dominguez  
+- Victor Abel Camacho Rodriguez  
+- Óscar Cardenas Valdez  
+- Hermann Pauwells Rivera
+
+---
+
+## Acknowledgments
+
+- OpenWeatherMap for providing reliable weather data  
+- Apple for the iOS development tools  
+- SwiftUI Community for resources and inspiration  
+- Public health organizations for research on extreme heat events
+
+---
+
+**Important:** HeatShield is an assistance tool and does not replace professional medical judgment. In case of a medical emergency, immediately contact local emergency services.
+
+**Developed with love to protect lives during extreme heat events.**
